@@ -1,0 +1,3 @@
+export const url:string = "http://localhost:8080";
+
+export const token:string = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBhZG1pbi5jb20iLCJhdXRoIjoiQURNSU5fQ09NTUFORF9ST0xFLEFETUlOX1FVRVJZX1JPTEUiLCJleHAiOjE5OTM1MDI2OTV9.tj6Tj3vWpO7hZf8a9pwzy458Lma4x-L0QisUE4_QZulB1FWtmYKhrjh0MZbZyEcFrsRMnZT94yT0KnZh5LSOdw";

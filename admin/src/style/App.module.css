@@ -1,0 +1,18 @@
+/* App.module.css */
+.app_container {
+  display: flex;
+  height: 100vh;
+}
+
+.main_section {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* 사이드바 제외 나머지 공간을 채우도록 설정 */
+  background-color: #f3f4f6; /* 오른쪽 배경색 설정 */
+}
+
+.content_area {
+  padding: 20px;
+  overflow-y: auto; /* 콘텐츠 영역이 길어질 때 스크롤이 가능하도록 설정 */
+  flex: 1;
+}
