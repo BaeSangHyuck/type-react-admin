@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Sidebar from "./component/SideBar.tsx";
 import WarehouseTable from "./component/WarehouseTable.tsx";
 import WarehouseDetail from "./component/WarehouseDetail.tsx";
+import WarehouseCreate from "./component/WarehouseCreate.tsx";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
             <Routes>
               <Route path="/warehouse" element={<WarehouseTable />} />
               <Route path="/warehouse/:id" element={<WarehouseDetail />} />
+              <Route path="/warehouse/create" element={<WarehouseCreate />} />
               <Route path="/*" element={<MainPage />} />
             </Routes>
           </div>

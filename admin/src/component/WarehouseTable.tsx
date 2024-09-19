@@ -1,20 +1,50 @@
 import React, { useEffect, useState } from "react";
 import WarehouseInfo from "../data/WarehouseInfo";
-import axios from "axios";
-import { useTable } from "react-table";
+import { useTable } from 'react-table';
 import { useNavigate } from "react-router-dom";
-import fetchData from "../function/FetchData.ts";
+import warehouseFetchData, { storeFetchData } from "../function/FetchData.ts";
+import Search from "./Search.tsx";
+import StoreInfo from "../data/StoreInfo.ts";
+import Pagenation from "./Pagenation.tsx";
 
 export default function WarehouseTable() {
-
   const [warehouseList, setWarehouseList] = useState<WarehouseInfo[]>([]);
   const navigate = useNavigate();
+  const [storeList, setStoreList] = useState<StoreInfo[]>();
+  const [storeIdList, setStoreIdList] = useState<Number[]>();
+  const [search, setSearch] = useState<string>();
+  const [page, setPage] = useState<number>(0);
+  const [size, setSize] = useState<number>(5);
+  const [totalPage, setTotalPage] = useState<number>(0);
+  useEffect(() => {
+    storeFetchData(`/store/list`, (res) => setStoreList(res));
+  }, []);
+
+  function fetchWarehouseData() {
+    warehouseFetchData(
+      "/warehouse/search",
+      { storeIdList, search, page: page, size: size },
+      (data) => {
+        setTotalPage(data.totalPages);
+        setWarehouseList(data.content);
+      }
+    );
+  }
+
+  function reSearch(): void {
+    fetchWarehouseData();
+  }
 
   useEffect(() => {
-    fetchData("/warehouse/search", { page: 0, size: 10 }, (data) => {
-      setWarehouseList(data.content);
-    });
-  }, []);
+    fetchWarehouseData(); // 처음에 데이터 가져오기
+  }, [page,size]);
+
+  function selectStore(storeIdList: number[]): void {
+    setStoreIdList(storeIdList);
+  }
+  function inputSearch(search: string): void {
+    setSearch(search);
+  }
 
   const data = React.useMemo(() => warehouseList, [warehouseList]);
 
@@ -35,8 +65,7 @@ export default function WarehouseTable() {
       {
         Header: "비고", // 액션 열 추가
         Cell: ({ row }: any) => (
-          <button
-            onClick={() => navigate(`/warehouse/${row.original.id}`)}>
+          <button onClick={() => navigate(`/warehouse/${row.original.id}`)}>
             상세보기
           </button>
         ),
@@ -51,14 +80,28 @@ export default function WarehouseTable() {
   return (
     <div>
       <h1 style={{ color: "black" }}>창고 설정</h1>
+      <div>
+        <Search
+          storeList={storeList}
+          selectStore={selectStore}
+          inputSearch={inputSearch}
+          reSearch={reSearch}
+        />
+      </div>
+      <button
+        onClick={() => {
+          navigate("/warehouse/create");
+        }}
+      >
+        추가
+      </button>
       {warehouseList && warehouseList.length > 0 ? (
         <table {...getTableProps()}>
           <thead>
             {headerGroups.map((headerGroup) => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
-                  <th
-                    {...column.getHeaderProps()}>
+                  <th {...column.getHeaderProps()}>
                     {column.render("Header")}
                   </th>
                 ))}
@@ -71,10 +114,7 @@ export default function WarehouseTable() {
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map((cell) => (
-                    <td
-                      {...cell.getCellProps()}>
-                      {cell.render("Cell")}
-                    </td>
+                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
                   ))}
                 </tr>
               );
@@ -84,6 +124,11 @@ export default function WarehouseTable() {
       ) : (
         <p>창고 정보를 불러오는 중입니다...</p>
       )}
+      <Pagenation
+        totalPage={totalPage}
+        onPageChange={setPage}
+        onSizeChange={setSize}
+      ></Pagenation>
     </div>
   );
 }
