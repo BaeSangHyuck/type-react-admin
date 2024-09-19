@@ -1,9 +1,8 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import WarehouseInfo from "../data/WarehouseInfo";
 import styles from "../style/Warehouse.module.css";
-import fetchData ,{putData } from "../function/FetchData.ts";
+import warehouseFetchData, { putData, deleteData } from "../function/FetchData.ts";
 import ActionButtons from "./ActionButtons.tsx";
 
 export interface ButtonProps {
@@ -17,18 +16,27 @@ export interface ButtonProps {
 export default function WarehouseDetail() {
   const { id } = useParams<{ id: string }>();
   const idNum = Number(id);
-  const [warehouse, setWarehouse] = useState<WarehouseInfo>();
+  const [warehouse, setWarehouse] = useState<WarehouseInfo>({
+    id: 0, // 기본값으로 숫자 0 설정
+    name: "", // 빈 문자열로 초기화
+    address: "", // 빈 문자열로 초기화
+    storeId: 0, // 기본값으로 숫자 0 설정
+  });
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const navigator = useNavigate();
 
   useEffect(() => {
-    fetchData(`/warehouse?warehouseId=${idNum}`, {}, setWarehouse);
+    warehouseFetchData(`/warehouse?warehouseId=${idNum}`, {}, (res)=>setWarehouse(res));
   }, []);
+  
 
   function submit() {
-    setIsDisabled(true);
-    setIsEdit(false);
-    putData(`/warehouse`, {warehouse}, (res)=>console.log(res));
+    if (warehouse) {
+      setIsDisabled(true);
+      setIsEdit(false);
+      putData(`/warehouse`, warehouse, (res) => console.log(res));
+    }
   }
   function edit() {
     setIsDisabled(false);
@@ -39,7 +47,13 @@ export default function WarehouseDetail() {
     setIsEdit(false);
   }
   function deleteF() {
-    console.log("삭제되었습니다.");
+    if (window.confirm("삭제하겠습니까?"))
+      deleteData("/warehouse", warehouse.id, (res) => {
+    if(res){
+      alert(`${warehouse.id}번 창고가 삭제되었습니다.`)
+      navigator("/warehouse");
+    }
+      });
   }
 
   const buttonProps: ButtonProps = {
@@ -75,7 +89,8 @@ export default function WarehouseDetail() {
             <h2>창고 이름</h2>
             <input
               type="text"
-              value={warehouse?.name}
+              name="name"
+              defaultValue={warehouse?.name}
               disabled={isDisabled}
               onChange={handleInputChange}
             />
@@ -84,7 +99,8 @@ export default function WarehouseDetail() {
             <h2>창고 주소</h2>
             <input
               type="text"
-              value={warehouse?.address}
+              name="address"
+              defaultValue={warehouse?.address}
               disabled={isDisabled}
               onChange={handleInputChange}
             />
@@ -93,7 +109,8 @@ export default function WarehouseDetail() {
             <h2>창고 매장번호</h2>
             <input
               type="text"
-              value={warehouse?.storeId}
+              name="storeId"
+              defaultValue={warehouse?.storeId}
               disabled={isDisabled}
               onChange={handleInputChange}
             />
